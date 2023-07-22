@@ -46,7 +46,6 @@ public class ElfSymbolQueryTable
     private readonly SortedDictionary<int, int> _table = new();
     #endregion
     #region ---Public Methods---
-
     public int Query(string symbolName)
     {
         if (_table.TryGetValue(symbolName.GetHashCode(), out var offset))
