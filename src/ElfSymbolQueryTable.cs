@@ -7,9 +7,15 @@ using ELFSharp.ELF.Sections;
 
 public class ElfSymbolQueryTable
 {
+    #region ---Constructors---
+    public ElfSymbolQueryTable(string path)
+    {
+        LoadFromElf(path);
+    }
+    #endregion
     #region ---Private Methods---
 
-    private IEnumerable<(string name, ulong offset)> EnumerableSymbolsFromElf(IELF elf)
+    private static IEnumerable<(string name, ulong offset)> EnumerableSymbolsFromElf(IELF elf)
     {
         var symbolTable = (ISymbolTable)elf.GetSection(".symtab");
         var symbolEntries = symbolTable.Entries.Cast<SymbolEntry<ulong>>();
@@ -60,8 +66,4 @@ public class ElfSymbolQueryTable
         return _table.TryGetValue(symbolName.GetHashCode(), out offset);
     }
     #endregion
-    public ElfSymbolQueryTable(string path)
-    {
-        LoadFromElf(path);
-    }
 }
