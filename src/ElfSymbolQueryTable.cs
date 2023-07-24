@@ -1,9 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-
-namespace FastElfQuery;
-
 using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
+
+namespace Hosihikari.FastElfQuery;
 
 public class ElfSymbolQueryTable
 {

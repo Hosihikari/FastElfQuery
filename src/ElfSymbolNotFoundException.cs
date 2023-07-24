@@ -1,4 +1,4 @@
-﻿namespace FastElfQuery;
+﻿namespace Hosihikari.FastElfQuery;
 
 public class ElfSymbolNotFoundException : Exception
 {
