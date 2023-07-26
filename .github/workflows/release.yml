@@ -45,6 +45,4 @@ jobs:
         with:
           prerelease: ${{ github.event.inputs.prerelease }}
           tag: ${{ github.event.inputs.version }}
-          artifacts: |
-            src/bin/Release/net${{env.DOTNET_VERSION}}.0/publish/${{env.ASSEMBLY_NAME}}.runtimeconfig.json
-            src/bin/Release/net${{env.DOTNET_VERSION}}.0/publish/${{env.ASSEMBLY_NAME}}.dll
+          artifacts: src/bin/Release/net${{env.DOTNET_VERSION}}.0/publish/${{env.ASSEMBLY_NAME}}.dll
