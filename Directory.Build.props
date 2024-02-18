@@ -1,5 +1,11 @@
 <Project>
- <PropertyGroup>
-   <Version>1.0.1</Version>
- </PropertyGroup>
+    <PropertyGroup>
+        <Version>1.0.1</Version>
+        <Authors>星光 Community</Authors>
+        <Title>ELF symbol query of 星光</Title>
+        <Description>ELFSharp APIs for 星光</Description>
+        <License>LGPL-3.0-or-later</License>
+        <ProjectUrl>https://hshkr.top</ProjectUrl>
+        <Tags>hosihikari</Tags>
+    </PropertyGroup>
 </Project>
