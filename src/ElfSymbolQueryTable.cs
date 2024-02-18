@@ -1,26 +1,35 @@
-﻿using System.Runtime.CompilerServices;
-using ELFSharp.ELF;
+﻿using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
+using System.Runtime.CompilerServices;
 
 namespace Hosihikari.FastElfQuery;
 
-public class ElfSymbolQueryTable
+public sealed class ElfSymbolQueryTable
 {
+    #region ---Private Fields---
+
+    private readonly SortedDictionary<int, int> _table = new();
+
+    #endregion
+
     #region ---Constructors---
+
     public ElfSymbolQueryTable(string path)
     {
         LoadFromElf(path);
     }
+
     #endregion
+
     #region ---Private Methods---
 
     private static IEnumerable<(string name, ulong offset)> EnumerableSymbolsFromElf(IELF elf)
     {
-        var symbolTable = (ISymbolTable)elf.GetSection(".symtab");
-        var symbolEntries = symbolTable.Entries.Cast<SymbolEntry<ulong>>();
-        foreach (var symbolEntry in symbolEntries)
+        ISymbolTable symbolTable = (ISymbolTable)elf.GetSection(".symtab");
+        IEnumerable<SymbolEntry<ulong>> symbolEntries = symbolTable.Entries.Cast<SymbolEntry<ulong>>();
+        foreach (SymbolEntry<ulong> symbolEntry in symbolEntries)
         {
-            var name = symbolEntry.Name;
+            string name = symbolEntry.Name;
             if (!string.IsNullOrWhiteSpace(name))
             {
                 yield return (name, symbolEntry.Value);
@@ -31,8 +40,8 @@ public class ElfSymbolQueryTable
     private void LoadFromElf(string path)
     {
         _table.Clear();
-        using var elf = ELFReader.Load(path);
-        foreach (var (name, offset) in EnumerableSymbolsFromElf(elf))
+        using IELF elf = ELFReader.Load(path);
+        foreach ((string name, ulong offset) in EnumerableSymbolsFromElf(elf))
         {
             switch (name)
             {
@@ -51,6 +60,7 @@ public class ElfSymbolQueryTable
                 case "_ZL32TextProcessingEventOriginEnumMapB5cxx11":
                     continue;
             }
+
             //cast ulong to int to optimize memory usage
             Add(name, (int)offset);
         }
@@ -64,27 +74,28 @@ public class ElfSymbolQueryTable
 #if UnknownSymbol
         if (!
 #endif
-            _table.TryAdd(name.GetHashCode(), offset)
+        _table.TryAdd(name.GetHashCode(), offset)
 #if UnknownSymbol
         )
         {
             Console.WriteLine("duplicated symbol {0}, offset {1}", name, offset);
         }
 #else
-        ;
+            ;
 #endif
     }
+
     #endregion
-    #region ---Private Fields---
-    private readonly SortedDictionary<int, int> _table = new();
-    #endregion
+
     #region ---Public Methods---
+
     public int Query(string symbolName)
     {
-        if (_table.TryGetValue(symbolName.GetHashCode(), out var offset))
+        if (_table.TryGetValue(symbolName.GetHashCode(), out int offset))
         {
             return offset;
         }
+
         throw new ElfSymbolNotFoundException(symbolName);
     }
 
@@ -92,5 +103,6 @@ public class ElfSymbolQueryTable
     {
         return _table.TryGetValue(symbolName.GetHashCode(), out offset);
     }
+
     #endregion
 }
