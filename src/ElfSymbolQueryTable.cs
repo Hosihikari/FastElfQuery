@@ -1,4 +1,4 @@
-﻿using ELFSharp.ELF;
+using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using System.Runtime.CompilerServices;
 

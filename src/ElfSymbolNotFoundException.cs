@@ -1,4 +1,4 @@
-﻿namespace Hosihikari.FastElfQuery;
+namespace Hosihikari.FastElfQuery;
 
 public sealed class ElfSymbolNotFoundException : Exception
 {
