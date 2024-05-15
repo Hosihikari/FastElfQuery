@@ -8,7 +8,7 @@ public sealed class ElfSymbolQueryTable
 {
     #region ---Private Fields---
 
-    private readonly SortedDictionary<int, int> _table = new();
+    private readonly SortedDictionary<int, nint> _table = new();
 
     #endregion
 
@@ -23,17 +23,19 @@ public sealed class ElfSymbolQueryTable
 
     #region ---Private Methods---
 
-    private static IEnumerable<(string name, ulong offset)> EnumerableSymbolsFromElf(IELF elf)
+    private static IEnumerable<(string name, nint offset)> EnumerableSymbolsFromElf(IELF elf)
     {
-        ISymbolTable symbolTable = (ISymbolTable)elf.GetSection(".symtab");
-        IEnumerable<SymbolEntry<ulong>> symbolEntries = symbolTable.Entries.Cast<SymbolEntry<ulong>>();
-        foreach (SymbolEntry<ulong> symbolEntry in symbolEntries)
+        ISymbolTable? symbolTable = elf.GetSection(".symtab") as ISymbolTable;
+        IEnumerable<SymbolEntry<nint>> symbolEntries = symbolTable!.Entries.Cast<SymbolEntry<nint>>();
+        foreach (SymbolEntry<nint> symbolEntry in symbolEntries)
         {
             string name = symbolEntry.Name;
-            if (!string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                yield return (name, symbolEntry.Value);
+                continue;
             }
+
+            yield return (name, symbolEntry.Value);
         }
     }
 
@@ -41,7 +43,7 @@ public sealed class ElfSymbolQueryTable
     {
         _table.Clear();
         using IELF elf = ELFReader.Load(path);
-        foreach ((string name, ulong offset) in EnumerableSymbolsFromElf(elf))
+        foreach ((string name, nint offset) in EnumerableSymbolsFromElf(elf))
         {
             switch (name)
             {
@@ -61,13 +63,13 @@ public sealed class ElfSymbolQueryTable
                     continue;
             }
 
-            //cast ulong to int to optimize memory usage
-            Add(name, (int)offset);
+            //cast nint to int to optimize memory usage
+            Add(name, offset);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Add(string name, int offset)
+    private void Add(string name, nint offset)
     {
         //convert to hashcode to avoid string comparison
         //for better performance
@@ -89,9 +91,9 @@ public sealed class ElfSymbolQueryTable
 
     #region ---Public Methods---
 
-    public int Query(string symbolName)
+    public nint Query(string symbolName)
     {
-        if (_table.TryGetValue(symbolName.GetHashCode(), out int offset))
+        if (_table.TryGetValue(symbolName.GetHashCode(), out nint offset))
         {
             return offset;
         }
@@ -99,7 +101,7 @@ public sealed class ElfSymbolQueryTable
         throw new ElfSymbolNotFoundException(symbolName);
     }
 
-    public bool TryQuery(string symbolName, out int offset)
+    public bool TryQuery(string symbolName, out nint offset)
     {
         return _table.TryGetValue(symbolName.GetHashCode(), out offset);
     }
